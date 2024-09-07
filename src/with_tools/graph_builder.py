@@ -3,7 +3,7 @@ from src.with_tools.state import State
 from src.with_tools.agent import agent
 from src.with_tools.tools import get_tools
 from src.with_tools.tool_node import ToolNode
-from src.with_tools.tool_router import route_tools
+from langgraph.prebuilt import ToolNode, tools_condition
 
 def build_graph() -> StateGraph:
     graph = StateGraph(State)
@@ -17,8 +17,7 @@ def build_graph() -> StateGraph:
     graph.set_entry_point("agent")
     graph.add_conditional_edges(
         "agent",
-        route_tools,
-        {"tools":"tools", "__end__":"__end__"}
+        tools_condition
     )
     graph.add_edge("tools", "agent")
     graph.add_edge("agent", END)
