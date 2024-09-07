@@ -1,20 +1,26 @@
 from langgraph.graph import StateGraph, START, END
-from src.memory.state import State
-from src.memory.agent import agent
+from src.with_memory.state import State
+from src.with_memory.agent import agent
+from src.with_memory.tools import get_tools
+from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
 
 def build_graph() -> StateGraph:
     graph = StateGraph(State)
-
-    # Memory
     memory = MemorySaver()
-    config = {"configurable": {"thread_id": "1"}}
  
     # Create Nodes
     graph.add_node("agent", agent)
+    tool_node = ToolNode(tools=get_tools())
+    graph.add_node("tools", tool_node)
     
     # Create Edges
     graph.set_entry_point("agent")
+    graph.add_conditional_edges(
+        "agent",
+        tools_condition
+    )
+    graph.add_edge("tools", "agent")
     graph.add_edge("agent", END)
 
     # Compile Graph
